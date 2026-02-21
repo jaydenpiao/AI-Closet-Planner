@@ -99,6 +99,7 @@ Build a reliable hackathon MVP where users provide closet images and/or typed cl
 - Frontend lint and production build passing
 - Frontend auth/account mode implemented (email/password + Google buttons, guest mode preserved)
 - Frontend closet manager + plan-from-saved-closet + saved outfits panels implemented
+- Frontend saved outfits panel now displays selected clothing pieces from `outfit_snapshot.pieces` with fallback handling for missing piece data
 - Live API verification complete (`health`, CORS, analyze, generate) in mock mode
 - Google OAuth preflight validated and currently failing with `Unsupported provider: provider is not enabled` (provider config pending in Supabase dashboard)
 - Docs completed (`README`, API contract, runbook, demo script)
@@ -114,9 +115,9 @@ Build a reliable hackathon MVP where users provide closet images and/or typed cl
   - FastAPI deprecated `HTTP_413_REQUEST_ENTITY_TOO_LARGE`; switched to `HTTP_413_CONTENT_TOO_LARGE`
 
 ## Next 3 Tasks
-1. Configure and validate Google OAuth provider settings in Supabase dashboard for localhost callback/origin.
-2. Run post-config preflight to confirm Google authorize endpoint returns redirect (302/303 instead of 400).
-3. Run full end-to-end authenticated smoke (signup/login, closet CRUD, image upload, protected generate, save/delete outfit).
+1. Run authenticated UI smoke to confirm saved outfit cards render selected pieces for newly saved and previously saved outfits.
+2. Validate fallback rendering path by loading a saved outfit record with empty/missing `outfit_snapshot.pieces`.
+3. Continue account-mode end-to-end regression (closet CRUD, image upload, protected generate, save/delete outfit).
 
 ## Quick Test Commands
 
@@ -179,3 +180,4 @@ npm run build
 - [2026-02-21 14:26 PST] codex | implemented v2 auth + persistence stack (Supabase-backed `/api/me/*`, frontend account mode, closet CRUD, saved outfits) | deliver non-breaking expansion from guest MVP to authenticated workflow | backend tests `19 passed`, frontend lint/build pass
 - [2026-02-21 14:26 PST] codex | applied Supabase migration `auth_closet_v1` and verified tables/RLS/storage policies | establish secure schema baseline for per-user data + item images | `public` tables present, RLS enabled, `closet-item-images` bucket present
 - [2026-02-21 15:10 PST] codex | added Google OAuth local setup runbook + provider preflight commands in docs | reduce setup ambiguity and make auth blocker diagnosable in one command | current preflight result confirmed: HTTP 400 `Unsupported provider: provider is not enabled`
+- [2026-02-21 15:50 PST] codex | updated saved outfit cards to render selected clothing pieces from snapshots | close account-mode UX gap where saved outfits lacked item-level visibility | frontend lint/build pass on `feat/saved-outfit-piece-details`
