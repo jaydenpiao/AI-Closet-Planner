@@ -17,6 +17,19 @@ const CATEGORY_ORDER: ClothingCategory[] = [
 ]
 
 export function ClosetSummary({ result }: ClosetSummaryProps) {
+  if (result.items.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Parsed Closet</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            No closet items were returned. Try adding more details or use demo data.
+          </p>
+        </CardHeader>
+      </Card>
+    )
+  }
+
   const grouped = result.items.reduce<Record<string, AnalyzeClosetResponse["items"]>>((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = []

@@ -9,8 +9,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { analyzeCloset, ApiError, generateOutfits, getHealth } from "@/lib/api"
-import { demoAnalyzeResult, demoOutfitResult } from "@/lib/demo-data"
-import type { AnalyzeClosetResponse, GenerateOutfitsResponse, PlannerFormValues } from "@/types/api"
+import { demoAnalyzeResult, demoOutfitResult, demoPreferences } from "@/lib/demo-data"
+import { hasPlannerFormErrors, validatePlannerForm } from "@/lib/validation"
+import type {
+  AnalyzeClosetResponse,
+  GenerateOutfitsResponse,
+  PlannerFormErrors,
+  PlannerFormValues,
+} from "@/types/api"
 
 const initialValues: PlannerFormValues = {
   files: [],
@@ -26,6 +32,7 @@ function App() {
   const [values, setValues] = useState<PlannerFormValues>(initialValues)
   const [analysisResult, setAnalysisResult] = useState<AnalyzeClosetResponse | null>(null)
   const [outfitResult, setOutfitResult] = useState<GenerateOutfitsResponse | null>(null)
+  const [formErrors, setFormErrors] = useState<PlannerFormErrors>({})
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [healthState, setHealthState] = useState<HealthState>("checking")
   const [loading, setLoading] = useState(false)
@@ -41,19 +48,34 @@ function App() {
     })()
   }, [])
 
+  function handleValuesChange(nextValues: PlannerFormValues) {
+    setValues(nextValues)
+    if (hasPlannerFormErrors(formErrors)) {
+      setFormErrors(validatePlannerForm(nextValues))
+    }
+  }
+
+  function handleClearFiles() {
+    const nextValues = { ...values, files: [] }
+    setValues(nextValues)
+    if (hasPlannerFormErrors(formErrors)) {
+      setFormErrors(validatePlannerForm(nextValues))
+    }
+  }
+
   async function handleSubmit() {
-    if (!values.manualClothesText.trim() && values.files.length === 0) {
-      setErrorMessage("Provide at least one input: closet images or manual clothes text.")
+    const nextFormErrors = validatePlannerForm(values)
+    if (hasPlannerFormErrors(nextFormErrors)) {
+      setFormErrors(nextFormErrors)
+      setErrorMessage(null)
       return
     }
 
-    if (!values.occasion.trim() || !values.itinerary.trim()) {
-      setErrorMessage("Occasion and itinerary are required to generate outfits.")
-      return
-    }
-
+    setFormErrors({})
     setLoading(true)
     setErrorMessage(null)
+    setAnalysisResult(null)
+    setOutfitResult(null)
 
     try {
       const analyzed = await analyzeCloset(values)
@@ -68,10 +90,11 @@ function App() {
 
       setOutfitResult(generated)
     } catch (error) {
+      const baseErrorMessage = "Backend unavailable or request failed. Retry or use demo data."
       if (error instanceof ApiError) {
-        setErrorMessage(error.message)
+        setErrorMessage(`${baseErrorMessage} (${error.message})`)
       } else {
-        setErrorMessage("Unexpected error. Please retry or use demo data.")
+        setErrorMessage(baseErrorMessage)
       }
     } finally {
       setLoading(false)
@@ -79,6 +102,8 @@ function App() {
   }
 
   function handleUseDemoData() {
+    setFormErrors({})
+    setLoading(false)
     setErrorMessage(null)
     setAnalysisResult(demoAnalyzeResult)
     setOutfitResult(demoOutfitResult)
@@ -86,6 +111,7 @@ function App() {
       ...previous,
       occasion: demoOutfitResult.occasion,
       itinerary: demoOutfitResult.itinerary,
+      preferences: demoPreferences,
     }))
   }
 
@@ -95,8 +121,10 @@ function App() {
 
       <PlannerForm
         values={values}
+        errors={formErrors}
         loading={loading}
-        onChange={setValues}
+        onChange={handleValuesChange}
+        onClearFiles={handleClearFiles}
         onSubmit={handleSubmit}
         onUseDemoData={handleUseDemoData}
       />

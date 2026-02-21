@@ -69,3 +69,11 @@ export interface PlannerFormValues {
   itinerary: string
   preferences: string
 }
+
+export interface PlannerFormErrors {
+  files?: string
+  manualClothesText?: string
+  occasion?: string
+  itinerary?: string
+  form?: string
+}

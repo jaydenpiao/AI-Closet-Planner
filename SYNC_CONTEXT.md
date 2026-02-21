@@ -77,6 +77,8 @@ Build a reliable hackathon MVP where users provide closet images and/or typed cl
 - Frontend implemented with Tailwind + shadcn component set
 - Frontend API integration implemented (analyze -> generate flow)
 - Demo data button implemented
+- Frontend hardening pass completed (shared validation util, inline form errors, resilient submit lifecycle, API failure guidance to demo path)
+- Frontend tests implemented with Vitest + RTL (`5 passed`)
 - Frontend lint and production build passing
 - Live API verification complete (`health`, CORS, analyze, generate) in mock mode
 - Docs completed (`README`, API contract, runbook, demo script)
@@ -89,23 +91,24 @@ Build a reliable hackathon MVP where users provide closet images and/or typed cl
   - Shell default node version was older; used Node 24 path for frontend commands
 
 ## Next 3 Tasks
-1. Optional: add small frontend integration/e2e test for demo button + render assertions
-2. Optional: improve mock outfit generator to avoid duplicate category fallback pieces
+1. Optional: add drag-and-drop file upload UX and thumbnail preview/removal interactions
+2. Optional: add frontend contract tests for known backend error codes (`400`, `413`, `415`, `502`)
 3. Optional: switch to real Gemini mode and validate multimodal image path with sample photos
 
 ## Quick Test Commands
 
 ```bash
 # Backend
-cd /Users/jaydenpiao/Desktop/AI-Closet-Planner/backend
+cd /Users/maggiedi/Desktop/AI-Closet-Planner/backend
 source .venv/bin/activate
 pytest -q
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 # Frontend
-cd /Users/jaydenpiao/Desktop/AI-Closet-Planner/frontend
+cd /Users/maggiedi/Desktop/AI-Closet-Planner/frontend
 export PATH="/opt/homebrew/opt/node@24/bin:$PATH"
 npm run lint
+npm run test:run
 npm run build
 npm run dev
 
@@ -121,3 +124,4 @@ curl -sS -X POST http://127.0.0.1:8000/api/analyze-closet -F 'manual_clothes_tex
 - [2026-02-21 12:05 PST] codex | implemented frontend UI/types/api integration | deliver MVP UX and render pipeline | `npm run lint` + `npm run build` pass
 - [2026-02-21 12:07 PST] codex | completed docs and consolidated shared context | handoff-ready sprint documentation | docs files present and linked from README
 - [2026-02-21 12:12 PST] codex | aligned `files[]` upload contract and reran live checks | enforce exact API field requirement + verify end-to-end readiness | pytest/lint/build/health/CORS/analyze/generate all pass
+- [2026-02-21 12:37 PST] codex | hardened frontend validation/states and added Vitest/RTL tests | improve submit resilience and demo UX while keeping API contract stable | `npm run lint` + `npm run test:run` + `npm run build` pass

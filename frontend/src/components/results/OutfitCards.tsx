@@ -7,6 +7,21 @@ interface OutfitCardsProps {
 }
 
 export function OutfitCards({ result }: OutfitCardsProps) {
+  if (result.outfits.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Outfit Suggestions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            No outfit suggestions were returned. Retry or use demo data.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <div className="space-y-4">
       <div>

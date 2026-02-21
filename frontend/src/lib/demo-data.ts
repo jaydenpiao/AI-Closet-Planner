@@ -1,5 +1,7 @@
 import type { AnalyzeClosetResponse, GenerateOutfitsResponse } from "@/types/api"
 
+export const demoPreferences = "Prefer neutral colors and clean smart-casual combinations."
+
 export const demoAnalyzeResult: AnalyzeClosetResponse = {
   source: "manual_text",
   summary: "Parsed 5 closet items from demo data.",
