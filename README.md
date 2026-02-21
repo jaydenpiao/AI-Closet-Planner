@@ -1,6 +1,6 @@
 # Closet Planner AI (Hackathon MVP)
 
-Closet Planner AI is a full-stack monorepo MVP where users upload closet photos or type what they own, then provide an occasion/itinerary to get 2-4 outfit suggestions in structured JSON.
+Closet Planner AI is a full-stack monorepo MVP where users upload closet photos or type what they own, then provide an occasion/itinerary to get 2-4 outfit suggestions in structured JSON. Authenticated users can save outfits and review each saved outfit's selected clothing pieces later.
 
 ## Monorepo Structure
 
