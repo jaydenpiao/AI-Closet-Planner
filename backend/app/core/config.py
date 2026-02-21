@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     max_upload_mb: int = Field(default=8, alias="MAX_UPLOAD_MB")
     max_upload_files: int = Field(default=8, alias="MAX_UPLOAD_FILES")
     allowed_origins: str = Field(
-        default="http://localhost:5173",
+        default="http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174",
         alias="ALLOWED_ORIGINS",
     )
 
@@ -32,7 +32,17 @@ class Settings(BaseSettings):
 
     @property
     def allowed_origins_list(self) -> list[str]:
-        return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+        origins: list[str] = []
+        seen: set[str] = set()
+
+        for raw_origin in self.allowed_origins.split(","):
+            origin = raw_origin.strip().rstrip("/")
+            if not origin or origin in seen:
+                continue
+            seen.add(origin)
+            origins.append(origin)
+
+        return origins
 
 
 @lru_cache(maxsize=1)
