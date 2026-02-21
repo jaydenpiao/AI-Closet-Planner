@@ -12,7 +12,7 @@ def unsupported_media_type(detail: str) -> HTTPException:
 
 
 def payload_too_large(detail: str) -> HTTPException:
-    return HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail=detail)
+    return HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE, detail=detail)
 
 
 def bad_gateway(detail: str) -> HTTPException:

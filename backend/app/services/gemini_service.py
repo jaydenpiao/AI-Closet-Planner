@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections import defaultdict
 from typing import Any, TypeVar
 
@@ -93,7 +94,7 @@ class GeminiService:
         images: list[ImagePayload],
         schema_model: type[T],
     ) -> T:
-        last_error: Exception | None = None
+        last_error: GeminiResponseFormatError | None = None
         for _ in range(2):
             try:
                 return self._generate_json_once(
@@ -101,7 +102,7 @@ class GeminiService:
                     images=images,
                     schema_model=schema_model,
                 )
-            except (json.JSONDecodeError, ValidationError, GeminiServiceError) as exc:
+            except GeminiResponseFormatError as exc:
                 last_error = exc
 
         raise GeminiResponseFormatError(
@@ -127,19 +128,25 @@ class GeminiService:
                 )
             )
 
-        response = self._client.models.generate_content(
-            model=self.settings.gemini_model,
-            contents=[types.Content(role="user", parts=user_parts)],
-            config=types.GenerateContentConfig(
-                temperature=0,
-                response_mime_type="application/json",
-                response_schema=schema_model.model_json_schema(),
-            ),
-        )
+        try:
+            response = self._client.models.generate_content(
+                model=self.settings.gemini_model,
+                contents=[types.Content(role="user", parts=user_parts)],
+                config=types.GenerateContentConfig(
+                    temperature=0,
+                    response_mime_type="application/json",
+                    response_schema=schema_model.model_json_schema(),
+                ),
+            )
+        except Exception as exc:
+            raise GeminiServiceError("Gemini request failed before a response was returned.") from exc
 
         text = self._extract_response_text(response)
-        payload = json.loads(text)
-        return schema_model.model_validate(payload)
+        payload = self._parse_json_payload(text)
+        try:
+            return schema_model.model_validate(payload)
+        except ValidationError as exc:
+            raise GeminiResponseFormatError("Gemini JSON did not match the required schema.") from exc
 
     @staticmethod
     def _extract_response_text(response: Any) -> str:
@@ -158,6 +165,46 @@ class GeminiService:
                     return maybe_text.strip()
 
         raise GeminiServiceError("Gemini returned an empty response body.")
+
+    @classmethod
+    def _parse_json_payload(cls, raw_text: str) -> Any:
+        last_error: json.JSONDecodeError | None = None
+        for candidate in cls._json_candidates(raw_text):
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError as exc:
+                last_error = exc
+
+        raise GeminiResponseFormatError("Gemini response was not valid JSON.") from last_error
+
+    @staticmethod
+    def _json_candidates(raw_text: str) -> list[str]:
+        candidates: list[str] = []
+
+        def add_candidate(value: str) -> None:
+            normalized = value.strip()
+            if normalized and normalized not in candidates:
+                candidates.append(normalized)
+
+        stripped = raw_text.strip()
+        add_candidate(stripped)
+
+        if stripped.startswith("```"):
+            without_fence = re.sub(r"^```(?:json)?\s*", "", stripped, flags=re.IGNORECASE)
+            without_fence = re.sub(r"\s*```$", "", without_fence)
+            add_candidate(without_fence)
+
+        for candidate in list(candidates):
+            start_positions = [pos for pos in (candidate.find("{"), candidate.find("[")) if pos != -1]
+            if not start_positions:
+                continue
+
+            start = min(start_positions)
+            end = max(candidate.rfind("}"), candidate.rfind("]"))
+            if end > start:
+                add_candidate(candidate[start : end + 1])
+
+        return candidates
 
     def _mock_analyze_closet(
         self,
@@ -203,22 +250,37 @@ class GeminiService:
         for item in request.closet_items:
             by_category[item.category].append(item)
 
-        def pick(category: ClothingCategory, fallback: ClosetItem) -> ClosetItem:
-            candidates = by_category.get(category) or []
-            return candidates[0] if candidates else fallback
+        def pick_unique(category: ClothingCategory, used_ids: set[str]) -> ClosetItem:
+            for candidate in by_category.get(category, []):
+                if candidate.id not in used_ids:
+                    used_ids.add(candidate.id)
+                    return candidate
 
-        fallback_item = request.closet_items[0]
+            for candidate in request.closet_items:
+                if candidate.id not in used_ids:
+                    used_ids.add(candidate.id)
+                    return candidate
 
+            # Input can contain a single unique item; allow duplicate only as last resort.
+            return request.closet_items[0]
+
+        outfit_1_used: set[str] = set()
         outfit_1 = OutfitSuggestion(
             outfit_id="outfit-1",
             title="Smart Daytime Core",
             pieces=[
-                self._to_piece(pick(ClothingCategory.top, fallback_item), "Use as the visual anchor."),
                 self._to_piece(
-                    pick(ClothingCategory.bottom, fallback_item),
+                    pick_unique(ClothingCategory.top, outfit_1_used),
+                    "Use as the visual anchor.",
+                ),
+                self._to_piece(
+                    pick_unique(ClothingCategory.bottom, outfit_1_used),
                     "Keeps the look balanced and easy to move in.",
                 ),
-                self._to_piece(pick(ClothingCategory.shoes, fallback_item), "Comfort-first for itinerary walking."),
+                self._to_piece(
+                    pick_unique(ClothingCategory.shoes, outfit_1_used),
+                    "Comfort-first for itinerary walking.",
+                ),
             ],
             reasoning=(
                 "Built for a polished but comfortable day plan. It fits mixed indoor/outdoor transitions "
@@ -231,17 +293,27 @@ class GeminiService:
             ],
         )
 
+        outfit_2_used: set[str] = set()
         outfit_2 = OutfitSuggestion(
             outfit_id="outfit-2",
             title="Layered Versatile Option",
             pieces=[
-                self._to_piece(pick(ClothingCategory.top, fallback_item), "Base layer that works across activities."),
                 self._to_piece(
-                    pick(ClothingCategory.outerwear, fallback_item),
+                    pick_unique(ClothingCategory.top, outfit_2_used),
+                    "Base layer that works across activities.",
+                ),
+                self._to_piece(
+                    pick_unique(ClothingCategory.outerwear, outfit_2_used),
                     "Adds structure and weather flexibility.",
                 ),
-                self._to_piece(pick(ClothingCategory.bottom, fallback_item), "Neutral base to keep options open."),
-                self._to_piece(pick(ClothingCategory.shoes, fallback_item), "Reliable for longer wear."),
+                self._to_piece(
+                    pick_unique(ClothingCategory.bottom, outfit_2_used),
+                    "Neutral base to keep options open.",
+                ),
+                self._to_piece(
+                    pick_unique(ClothingCategory.shoes, outfit_2_used),
+                    "Reliable for longer wear.",
+                ),
             ],
             reasoning=(
                 "This option adapts well to schedule changes in the itinerary while staying cohesive."
@@ -253,14 +325,27 @@ class GeminiService:
             ],
         )
 
+        outfit_3_used: set[str] = set()
         outfit_3 = OutfitSuggestion(
             outfit_id="outfit-3",
             title="Evening Lean-In",
             pieces=[
-                self._to_piece(pick(ClothingCategory.top, fallback_item), "Cleaner silhouette for evening photos."),
-                self._to_piece(pick(ClothingCategory.bottom, fallback_item), "Maintains contrast and shape."),
-                self._to_piece(pick(ClothingCategory.accessory, fallback_item), "Adds intentional styling detail."),
-                self._to_piece(pick(ClothingCategory.shoes, fallback_item), "Completes the formality level."),
+                self._to_piece(
+                    pick_unique(ClothingCategory.top, outfit_3_used),
+                    "Cleaner silhouette for evening photos.",
+                ),
+                self._to_piece(
+                    pick_unique(ClothingCategory.bottom, outfit_3_used),
+                    "Maintains contrast and shape.",
+                ),
+                self._to_piece(
+                    pick_unique(ClothingCategory.accessory, outfit_3_used),
+                    "Adds intentional styling detail.",
+                ),
+                self._to_piece(
+                    pick_unique(ClothingCategory.shoes, outfit_3_used),
+                    "Completes the formality level.",
+                ),
             ],
             reasoning=(
                 "A slightly elevated take suited for dinner or social stops while still using the same closet core."
