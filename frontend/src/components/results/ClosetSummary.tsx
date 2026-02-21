@@ -1,3 +1,5 @@
+import { AlertCircle, ShoppingBag } from "lucide-react"
+
 import type { AnalyzeClosetResponse, ClothingCategory } from "@/types/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -22,7 +24,12 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
     return (
       <Card className="notepad-card">
         <CardHeader>
-          <CardTitle>Your Closet Summary</CardTitle>
+          <CardTitle>
+            <span className="kawaii-heading">
+              <ShoppingBag aria-hidden="true" className="kawaii-heading-icon" />
+              <span>Your Closet Summary</span>
+            </span>
+          </CardTitle>
           <p className="text-sm text-muted-foreground">
             No closet items were returned. Try adding more details or use demo data.
           </p>
@@ -42,7 +49,12 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
   return (
     <Card className="notepad-card">
       <CardHeader>
-        <CardTitle>Your Closet Summary</CardTitle>
+        <CardTitle>
+          <span className="kawaii-heading">
+            <ShoppingBag aria-hidden="true" className="kawaii-heading-icon" />
+            <span>Your Closet Summary</span>
+          </span>
+        </CardTitle>
         <p className="text-sm text-muted-foreground">{result.summary}</p>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -81,7 +93,12 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
 
         {result.warnings.length > 0 && (
           <div className="notepad-chip rounded-lg border border-primary/30 bg-secondary/55 p-3 text-sm text-foreground">
-            <p className="font-semibold text-primary">Warnings</p>
+            <p className="kawaii-section-label font-semibold text-primary">
+              <span className="kawaii-icon-chip">
+                <AlertCircle aria-hidden="true" className="h-3.5 w-3.5" />
+              </span>
+              <span>Warnings</span>
+            </p>
             <ul className="mt-1 list-disc space-y-1 pl-4">
               {result.warnings.map((warning) => (
                 <li key={warning}>{warning}</li>

@@ -31,6 +31,10 @@
     --washi-primary: 29 30% 56%;
     --washi-secondary: 35 62% 84%;
     --washi-shadow: 24 24% 32%;
+    --icon-accent: 13 40% 48%;
+    --icon-soft: 18 60% 68%;
+    --icon-chip-bg: 36 100% 90%;
+    --icon-chip-border: 29 30% 66%;
     --radius: 0.85rem;
   }
 
@@ -53,6 +57,69 @@
 }
 
 @layer components {
+  .kawaii-heading {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.36rem;
+  }
+
+  .kawaii-heading-icon {
+    width: 1rem;
+    height: 1rem;
+    color: hsl(var(--icon-accent));
+    stroke-width: 2.2;
+    flex-shrink: 0;
+  }
+
+  .kawaii-heading-icon-soft {
+    color: hsl(var(--icon-soft));
+  }
+
+  .kawaii-sparkle {
+    color: hsl(var(--icon-soft));
+    opacity: 0.94;
+  }
+
+  .kawaii-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .kawaii-label-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    color: hsl(var(--icon-accent));
+    stroke-width: 2.2;
+    flex-shrink: 0;
+  }
+
+  .kawaii-section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .kawaii-section-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+    color: hsl(var(--icon-accent));
+    stroke-width: 2.2;
+    flex-shrink: 0;
+  }
+
+  .kawaii-icon-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid hsl(var(--icon-chip-border) / 0.65);
+    background-color: hsl(var(--icon-chip-bg) / 0.76);
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
   .notepad-card {
     position: relative;
     overflow: hidden;
@@ -138,6 +205,26 @@
   }
 
   @media (max-width: 640px) {
+    .kawaii-heading {
+      gap: 0.3rem;
+    }
+
+    .kawaii-heading-icon {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    .kawaii-label-icon,
+    .kawaii-section-icon {
+      width: 0.82rem;
+      height: 0.82rem;
+    }
+
+    .kawaii-icon-chip {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+
     .notepad-card {
       border-radius: 1.45rem;
       box-shadow: 0 10px 22px -18px hsl(var(--notepad-shadow) / 0.28);

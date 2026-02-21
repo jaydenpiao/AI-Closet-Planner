@@ -1,3 +1,5 @@
+import { ClipboardList, Flower2, NotebookPen, Shirt, Sparkles, WandSparkles } from "lucide-react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StarRating } from "@/components/ui/star-rating"
 import type { GenerateOutfitsResponse } from "@/types/api"
@@ -11,7 +13,12 @@ export function OutfitCards({ result }: OutfitCardsProps) {
     return (
       <Card className="notepad-card">
         <CardHeader>
-          <CardTitle>Outfit Suggestions</CardTitle>
+          <CardTitle>
+            <span className="kawaii-heading">
+              <Sparkles aria-hidden="true" className="kawaii-heading-icon kawaii-sparkle" />
+              <span>Outfit Suggestions</span>
+            </span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
@@ -25,7 +32,13 @@ export function OutfitCards({ result }: OutfitCardsProps) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-semibold">Outfit Suggestions</h2>
+        <h2 className="text-xl font-semibold">
+          <span className="kawaii-heading">
+            <Sparkles aria-hidden="true" className="kawaii-heading-icon kawaii-sparkle" />
+            <span>Outfit Suggestions</span>
+            <Flower2 aria-hidden="true" className="kawaii-heading-icon kawaii-heading-icon-soft" />
+          </span>
+        </h2>
         <p className="text-sm text-muted-foreground">
           Occasion: {result.occasion} | Itinerary: {result.itinerary}
         </p>
@@ -38,13 +51,19 @@ export function OutfitCards({ result }: OutfitCardsProps) {
             className="notepad-card transition-transform duration-200 hover:-translate-y-0.5"
           >
             <CardHeader className="flex flex-row items-center justify-between gap-3">
-              <CardTitle className="text-lg">{outfit.title}</CardTitle>
+              <CardTitle className="text-lg">
+                <span className="kawaii-heading">
+                  <Shirt aria-hidden="true" className="kawaii-heading-icon" />
+                  <span>{outfit.title}</span>
+                </span>
+              </CardTitle>
               <StarRating confidence={outfit.confidence} />
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="notepad-section">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Selected pieces
+                <p className="kawaii-section-label text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <ClipboardList aria-hidden="true" className="kawaii-section-icon" />
+                  <span>Selected pieces</span>
                 </p>
                 <ul className="mt-2 space-y-2">
                   {outfit.pieces.map((piece) => (
@@ -59,16 +78,18 @@ export function OutfitCards({ result }: OutfitCardsProps) {
               </div>
 
               <div className="notepad-section">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Reasoning
+                <p className="kawaii-section-label text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <NotebookPen aria-hidden="true" className="kawaii-section-icon" />
+                  <span>Reasoning</span>
                 </p>
                 <p className="mt-1 text-sm">{outfit.reasoning}</p>
               </div>
 
               {outfit.alternatives.length > 0 && (
                 <div className="notepad-section">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Alternatives
+                  <p className="kawaii-section-label text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <WandSparkles aria-hidden="true" className="kawaii-section-icon" />
+                    <span>Alternatives</span>
                   </p>
                   <ul className="mt-1 list-disc space-y-1 pl-4 text-sm text-muted-foreground">
                     {outfit.alternatives.map((alternative) => (
@@ -85,7 +106,12 @@ export function OutfitCards({ result }: OutfitCardsProps) {
       {result.global_tips.length > 0 && (
         <Card className="notepad-card">
           <CardHeader>
-            <CardTitle className="text-base">Global Tips</CardTitle>
+            <CardTitle className="text-base">
+              <span className="kawaii-heading">
+                <Flower2 aria-hidden="true" className="kawaii-heading-icon kawaii-heading-icon-soft" />
+                <span>Global Tips</span>
+              </span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="notepad-section list-disc space-y-1 pl-4 text-sm text-muted-foreground">

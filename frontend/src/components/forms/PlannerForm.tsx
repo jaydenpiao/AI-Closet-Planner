@@ -1,5 +1,14 @@
 import { useRef } from "react"
-import { Upload } from "lucide-react"
+import {
+  CalendarDays,
+  ClipboardList,
+  Heart,
+  ImageUp,
+  MapPinned,
+  NotebookPen,
+  Upload,
+  WandSparkles,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -34,7 +43,12 @@ export function PlannerForm({
   return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-secondary/45">
-        <CardTitle>Plan Inputs</CardTitle>
+        <CardTitle>
+          <span className="kawaii-heading">
+            <NotebookPen aria-hidden="true" className="kawaii-heading-icon" />
+            <span>Plan Inputs</span>
+          </span>
+        </CardTitle>
         <CardDescription>
           At least one of image uploads or manual closet text is required.
         </CardDescription>
@@ -42,7 +56,10 @@ export function PlannerForm({
       <CardContent className="space-y-5 pt-6">
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground" htmlFor="files">
-            Closet Images (optional, up to 8)
+            <span className="kawaii-label">
+              <ImageUp aria-hidden="true" className="kawaii-label-icon" />
+              <span>Closet Images (optional, up to 8)</span>
+            </span>
           </label>
           <Input
             id="files"
@@ -84,7 +101,10 @@ export function PlannerForm({
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground" htmlFor="manual-clothes">
-            Manual Clothes List (optional)
+            <span className="kawaii-label">
+              <ClipboardList aria-hidden="true" className="kawaii-label-icon" />
+              <span>Manual Clothes List (optional)</span>
+            </span>
           </label>
           <Textarea
             id="manual-clothes"
@@ -99,7 +119,10 @@ export function PlannerForm({
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground" htmlFor="occasion">
-              Occasion
+              <span className="kawaii-label">
+                <CalendarDays aria-hidden="true" className="kawaii-label-icon" />
+                <span>Occasion</span>
+              </span>
             </label>
             <Input
               id="occasion"
@@ -114,7 +137,10 @@ export function PlannerForm({
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground" htmlFor="preferences">
-              Preferences (optional)
+              <span className="kawaii-label">
+                <Heart aria-hidden="true" className="kawaii-label-icon kawaii-heading-icon-soft" />
+                <span>Preferences (optional)</span>
+              </span>
             </label>
             <Input
               id="preferences"
@@ -128,7 +154,10 @@ export function PlannerForm({
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground" htmlFor="itinerary">
-            Itinerary
+            <span className="kawaii-label">
+              <MapPinned aria-hidden="true" className="kawaii-label-icon" />
+              <span>Itinerary</span>
+            </span>
           </label>
           <Textarea
             id="itinerary"
@@ -153,7 +182,14 @@ export function PlannerForm({
             <Upload className="h-4 w-4" />
             {loading ? "Planning outfits..." : "Analyze Closet + Generate Outfits"}
           </Button>
-          <Button type="button" variant="secondary" disabled={loading} onClick={onUseDemoData}>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={loading}
+            className="gap-2"
+            onClick={onUseDemoData}
+          >
+            <WandSparkles aria-hidden="true" className="h-4 w-4" />
             Use demo data
           </Button>
         </div>
