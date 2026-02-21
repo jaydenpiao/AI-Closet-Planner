@@ -22,7 +22,7 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Parsed Closet</CardTitle>
+          <CardTitle>Your Closet Summary</CardTitle>
           <p className="text-sm text-muted-foreground">
             No closet items were returned. Try adding more details or use demo data.
           </p>
@@ -42,7 +42,7 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Parsed Closet</CardTitle>
+        <CardTitle>Your Closet Summary</CardTitle>
         <p className="text-sm text-muted-foreground">{result.summary}</p>
       </CardHeader>
       <CardContent className="space-y-5">

@@ -125,7 +125,7 @@ describe("App", () => {
 
     await user.click(screen.getByRole("button", { name: /Use demo data/i }))
 
-    expect(screen.getByText("Parsed Closet")).toBeInTheDocument()
+    expect(screen.getByText("Your Closet Summary")).toBeInTheDocument()
     expect(screen.getByText("Outfit Suggestions")).toBeInTheDocument()
     expect(screen.getByText("Clean Smart Casual")).toBeInTheDocument()
     expect(screen.getByText("4.5/5")).toBeInTheDocument()
