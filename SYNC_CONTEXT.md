@@ -73,7 +73,9 @@ Build a reliable hackathon MVP where users provide closet images and/or typed cl
 - Backend endpoints implemented (`health`, `analyze-closet`, `generate-outfits`)
 - Backend Gemini service + prompt templates + mock mode implemented
 - Backend validation implemented (required input, MIME/type, file size, file count)
-- Backend tests passing (`4 passed`)
+- Backend hardening pass completed (Gemini error boundaries, JSON parse guards, retry semantics)
+- Mock outfit fallback improved to reduce repeated piece selection when categories are sparse
+- Backend contract/integration test coverage expanded (`15 passed`)
 - Frontend implemented with Tailwind + shadcn component set
 - Frontend API integration implemented (analyze -> generate flow)
 - Demo data button implemented
@@ -87,11 +89,12 @@ Build a reliable hackathon MVP where users provide closet images and/or typed cl
   - Pytest import path issue (`ModuleNotFoundError: app`) fixed with `backend/pytest.ini`
   - Tailwind init failed under v4; pinned to Tailwind v3.4 for stable shadcn workflow
   - Shell default node version was older; used Node 24 path for frontend commands
+  - FastAPI deprecated `HTTP_413_REQUEST_ENTITY_TOO_LARGE`; switched to `HTTP_413_CONTENT_TOO_LARGE`
 
 ## Next 3 Tasks
 1. Optional: add small frontend integration/e2e test for demo button + render assertions
-2. Optional: improve mock outfit generator to avoid duplicate category fallback pieces
-3. Optional: switch to real Gemini mode and validate multimodal image path with sample photos
+2. Optional: run gated real Gemini smoke in non-mock mode once `GEMINI_API_KEY` is provided
+3. Optional: add one multimodal image fixture test path for analyze endpoint (real-mode gated)
 
 ## Quick Test Commands
 
@@ -112,6 +115,28 @@ npm run dev
 # API smoke
 curl -sS http://127.0.0.1:8000/api/health
 curl -sS -X POST http://127.0.0.1:8000/api/analyze-closet -F 'manual_clothes_text=white tee, navy chinos'
+
+# Schema-valid smoke
+python - <<'PY'
+from fastapi.testclient import TestClient
+from app.main import app
+from app.models.schemas import AnalyzeClosetResponse, GenerateOutfitsResponse
+
+client = TestClient(app)
+analyze = client.post("/api/analyze-closet", data={"manual_clothes_text": "white tee, navy chinos, loafers"})
+analyze_payload = AnalyzeClosetResponse.model_validate(analyze.json())
+generate = client.post(
+    "/api/generate-outfits",
+    json={
+        "closet_items": [item.model_dump(mode="json") for item in analyze_payload.items],
+        "occasion": "Business casual meetup",
+        "itinerary": "Coworking then dinner",
+        "preferences": "Prefer neutral colors",
+    },
+)
+GenerateOutfitsResponse.model_validate(generate.json())
+print("ok")
+PY
 ```
 
 ## Change Log
@@ -121,3 +146,6 @@ curl -sS -X POST http://127.0.0.1:8000/api/analyze-closet -F 'manual_clothes_tex
 - [2026-02-21 12:05 PST] codex | implemented frontend UI/types/api integration | deliver MVP UX and render pipeline | `npm run lint` + `npm run build` pass
 - [2026-02-21 12:07 PST] codex | completed docs and consolidated shared context | handoff-ready sprint documentation | docs files present and linked from README
 - [2026-02-21 12:12 PST] codex | aligned `files[]` upload contract and reran live checks | enforce exact API field requirement + verify end-to-end readiness | pytest/lint/build/health/CORS/analyze/generate all pass
+- [2026-02-21 12:58 PST] codex | hardened Gemini service parsing/retry/error boundaries + mock outfit fallback | reduce malformed-output failures while preserving contract stability | backend tests expanded and passing (`15 passed`)
+- [2026-02-21 12:58 PST] codex | updated API contract + README schema-smoke instructions | improve frontend/backend integration confidence and runbook clarity | docs aligned with current backend behavior
+- [2026-02-21 12:58 PST] codex | validated mock-mode backend health/analyze/generate and recorded real-mode gate | satisfy MVP verification checklist without API key | real Gemini smoke skipped (`GEMINI_API_KEY` absent, `GEMINI_MOCK_MODE=true`)

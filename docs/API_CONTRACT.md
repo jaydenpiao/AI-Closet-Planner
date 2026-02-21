@@ -1,9 +1,18 @@
 # API Contract - Closet Planner AI MVP
 
-Base URL: `http://127.0.0.1:8000`
+Base URL: `http://127.0.0.1:8000`  
 Prefix: `/api`
 
-## Endpoints
+## Contract Stability
+
+This MVP keeps the following contract stable for frontend integration:
+
+- Endpoints: `/api/health`, `/api/analyze-closet`, `/api/generate-outfits`
+- Analyze multipart keys: `files[]`, `manual_clothes_text`
+- Generate JSON key: `closet_items`
+- Error body shape: `{ "detail": "<message>" }`
+
+No endpoint renames or response key removals are expected in this sprint.
 
 ## GET `/api/health`
 
@@ -15,7 +24,7 @@ Prefix: `/api`
 
 ## POST `/api/analyze-closet`
 
-`multipart/form-data`
+Content-Type: `multipart/form-data`
 
 ### Inputs
 
@@ -27,15 +36,16 @@ At least one of `files[]` or `manual_clothes_text` is required.
 ### Validation
 
 - Allowed MIME: `image/jpeg`, `image/png`, `image/webp`
-- Max file size: `8MB` each
-- Max file count: `8`
+- Max file size: `8MB` each (`MAX_UPLOAD_MB`)
+- Max file count: `8` (`MAX_UPLOAD_FILES`)
+- Empty files are rejected
 
 ### Response `200` (`AnalyzeClosetResponse`)
 
 ```json
 {
   "source": "manual_text",
-  "summary": "Parsed 4 clothing items and grouped them for outfit planning.",
+  "summary": "Parsed 3 clothing items and grouped them for outfit planning.",
   "items": [
     {
       "id": "manual-1",
@@ -63,9 +73,14 @@ At least one of `files[]` or `manual_clothes_text` is required.
 }
 ```
 
+Notes:
+
+- `source` is one of: `images`, `manual_text`, `images+manual_text`
+- `category_counts` includes all `ClothingCategory` enum keys
+
 ## POST `/api/generate-outfits`
 
-`application/json`
+Content-Type: `application/json`
 
 ### Request (`GenerateOutfitsRequest`)
 
@@ -93,7 +108,10 @@ At least one of `files[]` or `manual_clothes_text` is required.
 
 ### Response `200` (`GenerateOutfitsResponse`)
 
+Hard guarantees:
+
 - `outfits` length is always `2..4`
+- each outfit has `pieces` length `>= 2`
 - `confidence` is always between `0` and `1`
 
 ```json
@@ -115,7 +133,7 @@ At least one of `files[]` or `manual_clothes_text` is required.
           "item_id": "manual-2",
           "item_name": "blue jeans",
           "category": "bottom",
-          "styling_note": "Keeps the look grounded and wearable all day."
+          "styling_note": "Keeps the look balanced and easy to move in."
         }
       ],
       "reasoning": "Built for a polished but comfortable day plan.",
@@ -124,24 +142,24 @@ At least one of `files[]` or `manual_clothes_text` is required.
     },
     {
       "outfit_id": "outfit-2",
-      "title": "Layered Evening Option",
+      "title": "Layered Versatile Option",
       "pieces": [
         {
           "item_id": "manual-1",
           "item_name": "white tee",
           "category": "top",
-          "styling_note": "Works as a clean base under outerwear."
+          "styling_note": "Base layer that works across activities."
         },
         {
           "item_id": "manual-3",
           "item_name": "brown loafers",
           "category": "shoes",
-          "styling_note": "Adds dressier finish for evening plans."
+          "styling_note": "Reliable for longer wear."
         }
       ],
-      "reasoning": "Adds flexibility for temperature and venue changes.",
+      "reasoning": "Adapts well to schedule changes in the itinerary.",
       "confidence": 0.82,
-      "alternatives": ["Drop outerwear if the evening remains warm."]
+      "alternatives": ["Add a light layer if the evening cools down."]
     }
   ],
   "global_tips": ["Steam or lint-roll pieces before leaving."]
@@ -150,11 +168,22 @@ At least one of `files[]` or `manual_clothes_text` is required.
 
 ## Error Codes
 
-- `400`: missing required inputs or too many files
-- `413`: file too large
+All non-2xx responses follow:
+
+```json
+{ "detail": "Human-readable message" }
+```
+
+- `400`: missing required analyze input or too many files
+- `413`: uploaded file too large
 - `415`: unsupported file type
-- `422`: request schema validation error
-- `502`: Gemini response not valid JSON after retry or Gemini service failure
+- `422`: request validation error
+- `502`: Gemini unavailable or Gemini response could not be validated after retry
+
+## CORS
+
+Allowed origins are configured via `ALLOWED_ORIGINS` (comma-separated).
+Default: `http://localhost:5173`
 
 ## Schema Enums
 
