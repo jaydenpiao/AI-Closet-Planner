@@ -128,6 +128,7 @@ describe("App", () => {
     expect(screen.getByText("Parsed Closet")).toBeInTheDocument()
     expect(screen.getByText("Outfit Suggestions")).toBeInTheDocument()
     expect(screen.getByText("Clean Smart Casual")).toBeInTheDocument()
+    expect(screen.getByText("4.5/5")).toBeInTheDocument()
   })
 
   it("shows API failure guidance with demo data recommendation", async () => {

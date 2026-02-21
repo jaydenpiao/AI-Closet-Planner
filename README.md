@@ -35,6 +35,7 @@ Edit `backend/.env`:
 
 - Keep `GEMINI_MOCK_MODE=true` for reliable demo mode
 - Optionally set `GEMINI_API_KEY` and switch `GEMINI_MOCK_MODE=false` for real Gemini
+- Keep `ALLOWED_ORIGINS` aligned with your frontend dev port(s), including `5174` if Vite auto-switches from `5173`
 
 Install and run:
 

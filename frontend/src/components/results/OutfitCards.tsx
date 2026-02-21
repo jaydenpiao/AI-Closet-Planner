@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { StarRating } from "@/components/ui/star-rating"
 import type { GenerateOutfitsResponse } from "@/types/api"
 
 interface OutfitCardsProps {
@@ -36,7 +36,7 @@ export function OutfitCards({ result }: OutfitCardsProps) {
           <Card key={outfit.outfit_id} className="transition-transform duration-200 hover:-translate-y-0.5">
             <CardHeader className="flex flex-row items-center justify-between gap-3">
               <CardTitle className="text-lg">{outfit.title}</CardTitle>
-              <Badge variant="secondary">Confidence {Math.round(outfit.confidence * 100)}%</Badge>
+              <StarRating confidence={outfit.confidence} />
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
