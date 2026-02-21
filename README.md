@@ -134,6 +134,41 @@ curl -sS -X POST http://127.0.0.1:8000/api/generate-outfits \
   --data @/tmp/generate_payload.json
 ```
 
+### Schema-Valid Smoke (analyze + generate)
+
+```bash
+cd /Users/jaydenpiao/Desktop/AI-Closet-Planner/backend
+source .venv/bin/activate
+python - <<'PY'
+from fastapi.testclient import TestClient
+
+from app.main import app
+from app.models.schemas import AnalyzeClosetResponse, GenerateOutfitsResponse
+
+client = TestClient(app)
+
+analyze_response = client.post(
+    "/api/analyze-closet",
+    data={"manual_clothes_text": "white tee, navy chinos, brown loafers"},
+)
+analyze_payload = AnalyzeClosetResponse.model_validate(analyze_response.json())
+
+generate_response = client.post(
+    "/api/generate-outfits",
+    json={
+        "closet_items": [item.model_dump(mode="json") for item in analyze_payload.items],
+        "occasion": "Business casual meetup",
+        "itinerary": "Coworking then dinner",
+        "preferences": "Prefer neutral colors",
+    },
+)
+generate_payload = GenerateOutfitsResponse.model_validate(generate_response.json())
+
+print("analyze_status", analyze_response.status_code, "items", len(analyze_payload.items))
+print("generate_status", generate_response.status_code, "outfits", len(generate_payload.outfits))
+PY
+```
+
 ### Backend tests
 
 ```bash
