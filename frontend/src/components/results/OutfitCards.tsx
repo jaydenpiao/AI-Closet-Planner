@@ -9,7 +9,7 @@ interface OutfitCardsProps {
 export function OutfitCards({ result }: OutfitCardsProps) {
   if (result.outfits.length === 0) {
     return (
-      <Card>
+      <Card className="notepad-card">
         <CardHeader>
           <CardTitle>Outfit Suggestions</CardTitle>
         </CardHeader>
@@ -33,13 +33,16 @@ export function OutfitCards({ result }: OutfitCardsProps) {
 
       <div className="grid gap-4 xl:grid-cols-2">
         {result.outfits.map((outfit) => (
-          <Card key={outfit.outfit_id} className="transition-transform duration-200 hover:-translate-y-0.5">
+          <Card
+            key={outfit.outfit_id}
+            className="notepad-card transition-transform duration-200 hover:-translate-y-0.5"
+          >
             <CardHeader className="flex flex-row items-center justify-between gap-3">
               <CardTitle className="text-lg">{outfit.title}</CardTitle>
               <StarRating confidence={outfit.confidence} />
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
+              <div className="notepad-section">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Selected pieces
                 </p>
@@ -55,7 +58,7 @@ export function OutfitCards({ result }: OutfitCardsProps) {
                 </ul>
               </div>
 
-              <div>
+              <div className="notepad-section">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Reasoning
                 </p>
@@ -63,7 +66,7 @@ export function OutfitCards({ result }: OutfitCardsProps) {
               </div>
 
               {outfit.alternatives.length > 0 && (
-                <div>
+                <div className="notepad-section">
                   <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Alternatives
                   </p>
@@ -80,12 +83,12 @@ export function OutfitCards({ result }: OutfitCardsProps) {
       </div>
 
       {result.global_tips.length > 0 && (
-        <Card>
+        <Card className="notepad-card">
           <CardHeader>
             <CardTitle className="text-base">Global Tips</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+            <ul className="notepad-section list-disc space-y-1 pl-4 text-sm text-muted-foreground">
               {result.global_tips.map((tip) => (
                 <li key={tip}>{tip}</li>
               ))}

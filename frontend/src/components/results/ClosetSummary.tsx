@@ -20,7 +20,7 @@ const CATEGORY_ORDER: ClothingCategory[] = [
 export function ClosetSummary({ result }: ClosetSummaryProps) {
   if (result.items.length === 0) {
     return (
-      <Card>
+      <Card className="notepad-card">
         <CardHeader>
           <CardTitle>Your Closet Summary</CardTitle>
           <p className="text-sm text-muted-foreground">
@@ -40,7 +40,7 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
   }, {})
 
   return (
-    <Card>
+    <Card className="notepad-card">
       <CardHeader>
         <CardTitle>Your Closet Summary</CardTitle>
         <p className="text-sm text-muted-foreground">{result.summary}</p>
@@ -48,7 +48,7 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
       <CardContent className="space-y-5">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORY_ORDER.map((category) => (
-            <div key={category} className="rounded-lg border bg-muted/30 p-3">
+            <div key={category} className="notepad-chip rounded-lg border bg-muted/30 p-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {category}
               </p>
@@ -80,7 +80,7 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
         </div>
 
         {result.warnings.length > 0 && (
-          <div className="rounded-lg border border-primary/30 bg-secondary/55 p-3 text-sm text-foreground">
+          <div className="notepad-chip rounded-lg border border-primary/30 bg-secondary/55 p-3 text-sm text-foreground">
             <p className="font-semibold text-primary">Warnings</p>
             <ul className="mt-1 list-disc space-y-1 pl-4">
               {result.warnings.map((warning) => (

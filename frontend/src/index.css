@@ -23,6 +23,11 @@
     --ring: 31 21% 48%;
     --star-filled: 37 100% 84%;
     --star-empty: 23 55% 75%;
+    --notepad-paper: 37 100% 99%;
+    --notepad-line: 24 34% 88%;
+    --notepad-dash: 29 34% 72%;
+    --notepad-shadow: 24 31% 33%;
+    --notepad-sticker: 23 55% 75%;
     --radius: 0.85rem;
   }
 
@@ -41,5 +46,114 @@
 
   #root {
     @apply min-h-screen;
+  }
+}
+
+@layer components {
+  .notepad-card {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 2rem 1.7rem 1.95rem 1.8rem / 1.6rem 1.9rem 1.55rem 2rem;
+    border-color: hsl(var(--notepad-dash) / 0.45);
+    box-shadow:
+      0 14px 28px -18px hsl(var(--notepad-shadow) / 0.35),
+      0 2px 0 hsl(var(--notepad-dash) / 0.35);
+    background-image:
+      repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 27px,
+        hsl(var(--notepad-line) / 0.5) 27px,
+        hsl(var(--notepad-line) / 0.5) 28px
+      ),
+      linear-gradient(145deg, hsl(var(--notepad-paper)) 0%, hsl(var(--secondary) / 0.26) 100%);
+  }
+
+  .notepad-card::before {
+    content: "";
+    position: absolute;
+    inset: 11px;
+    border-radius: 1.35rem 1.65rem 1.45rem 1.5rem / 1.25rem 1.4rem 1.6rem 1.3rem;
+    border: 2px dashed hsl(var(--notepad-dash) / 0.35);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .notepad-card::after {
+    content: "";
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    width: 54px;
+    height: 20px;
+    transform: rotate(-8deg);
+    border-radius: 999px;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--notepad-sticker) / 0.58) 0%,
+      hsl(var(--primary) / 0.35) 100%
+    );
+    box-shadow: 0 4px 10px -8px hsl(var(--notepad-shadow) / 0.5);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .notepad-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .notepad-section {
+    border-radius: 1.4rem 1.15rem 1.5rem 1.25rem / 1.15rem 1.45rem 1.2rem 1.4rem;
+    border: 1px solid hsl(var(--notepad-dash) / 0.28);
+    background:
+      linear-gradient(145deg, hsl(var(--notepad-paper) / 0.96) 0%, hsl(var(--accent) / 0.15) 100%);
+    box-shadow: inset 0 1px 0 hsl(var(--card) / 0.75), 0 8px 14px -16px hsl(var(--notepad-shadow) / 0.6);
+    padding: 0.85rem 0.95rem;
+  }
+
+  .notepad-chip {
+    border-radius: 1.15rem 0.95rem 1.05rem 1.25rem / 0.95rem 1.15rem 1.25rem 1rem;
+    border-color: hsl(var(--notepad-dash) / 0.38);
+    background-image: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary) / 0.4) 100%);
+    box-shadow: inset 0 1px 0 hsl(var(--card) / 0.86);
+  }
+
+  @media (max-width: 640px) {
+    .notepad-card {
+      border-radius: 1.45rem;
+      box-shadow: 0 10px 22px -18px hsl(var(--notepad-shadow) / 0.28);
+      background-image:
+        repeating-linear-gradient(
+          180deg,
+          transparent 0,
+          transparent 24px,
+          hsl(var(--notepad-line) / 0.4) 24px,
+          hsl(var(--notepad-line) / 0.4) 25px
+        ),
+        linear-gradient(145deg, hsl(var(--notepad-paper)) 0%, hsl(var(--secondary) / 0.2) 100%);
+    }
+
+    .notepad-card::before {
+      inset: 8px;
+      border-width: 1px;
+    }
+
+    .notepad-card::after {
+      width: 42px;
+      height: 16px;
+      top: 10px;
+      right: 12px;
+    }
+
+    .notepad-section {
+      border-radius: 1rem;
+      padding: 0.72rem 0.8rem;
+    }
+
+    .notepad-chip {
+      border-radius: 0.95rem;
+    }
   }
 }
