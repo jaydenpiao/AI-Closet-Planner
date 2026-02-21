@@ -1,6 +1,7 @@
 import type { AnalyzeClosetResponse, ClothingCategory } from "@/types/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { formatClosetBadgeLabel } from "@/lib/closet-summary"
 
 interface ClosetSummaryProps {
   result: AnalyzeClosetResponse
@@ -69,7 +70,7 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
                 <div className="flex flex-wrap gap-2">
                   {items.map((item) => (
                     <Badge key={item.id} variant="outline" className="bg-card text-xs capitalize">
-                      {item.name} ({item.color})
+                      {formatClosetBadgeLabel(item.name, item.color)}
                     </Badge>
                   ))}
                 </div>
