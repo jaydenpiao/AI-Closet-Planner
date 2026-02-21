@@ -1,8 +1,15 @@
 import type {
   AnalyzeClosetResponse,
+  ClosetItemCreate,
+  ClosetItemRecord,
+  ClosetItemUpdate,
   GenerateOutfitsRequest,
   GenerateOutfitsResponse,
+  MeResponse,
   PlannerFormValues,
+  ProtectedGenerateOutfitsRequest,
+  SavedOutfitCreate,
+  SavedOutfitRecord,
 } from "@/types/api"
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000"
@@ -28,6 +35,12 @@ async function readErrorMessage(response: Response): Promise<string> {
   }
 
   return `Request failed with status ${response.status}`
+}
+
+function buildAuthHeaders(accessToken: string): HeadersInit {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+  }
 }
 
 export async function getHealth(): Promise<{ status: string }> {
@@ -78,4 +91,160 @@ export async function generateOutfits(
   }
 
   return (await response.json()) as GenerateOutfitsResponse
+}
+
+export async function getMe(accessToken: string): Promise<MeResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/me`, {
+    headers: buildAuthHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as MeResponse
+}
+
+export async function listClosetItems(accessToken: string): Promise<ClosetItemRecord[]> {
+  const response = await fetch(`${API_BASE_URL}/api/me/closet-items`, {
+    headers: buildAuthHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as ClosetItemRecord[]
+}
+
+export async function createClosetItem(
+  accessToken: string,
+  payload: ClosetItemCreate
+): Promise<ClosetItemRecord> {
+  const response = await fetch(`${API_BASE_URL}/api/me/closet-items`, {
+    method: "POST",
+    headers: {
+      ...buildAuthHeaders(accessToken),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as ClosetItemRecord
+}
+
+export async function updateClosetItem(
+  accessToken: string,
+  itemId: string,
+  payload: ClosetItemUpdate
+): Promise<ClosetItemRecord> {
+  const response = await fetch(`${API_BASE_URL}/api/me/closet-items/${itemId}`, {
+    method: "PATCH",
+    headers: {
+      ...buildAuthHeaders(accessToken),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as ClosetItemRecord
+}
+
+export async function deleteClosetItem(accessToken: string, itemId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/me/closet-items/${itemId}`, {
+    method: "DELETE",
+    headers: buildAuthHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+}
+
+export async function uploadClosetItemImage(
+  accessToken: string,
+  itemId: string,
+  file: File
+): Promise<ClosetItemRecord> {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const response = await fetch(`${API_BASE_URL}/api/me/closet-items/${itemId}/image`, {
+    method: "POST",
+    headers: buildAuthHeaders(accessToken),
+    body: formData,
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as ClosetItemRecord
+}
+
+export async function deleteClosetItemImage(
+  accessToken: string,
+  itemId: string
+): Promise<ClosetItemRecord> {
+  const response = await fetch(`${API_BASE_URL}/api/me/closet-items/${itemId}/image`, {
+    method: "DELETE",
+    headers: buildAuthHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as ClosetItemRecord
+}
+
+export async function generateOutfitsFromSavedCloset(
+  accessToken: string,
+  payload: ProtectedGenerateOutfitsRequest
+): Promise<GenerateOutfitsResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/me/generate-outfits`, {
+    method: "POST",
+    headers: {
+      ...buildAuthHeaders(accessToken),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as GenerateOutfitsResponse
+}
+
+export async function listSavedOutfits(accessToken: string): Promise<SavedOutfitRecord[]> {
+  const response = await fetch(`${API_BASE_URL}/api/me/saved-outfits`, {
+    headers: buildAuthHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as SavedOutfitRecord[]
+}
+
+export async function createSavedOutfit(
+  accessToken: string,
+  payload: SavedOutfitCreate
+): Promise<SavedOutfitRecord> {
+  const response = await fetch(`${API_BASE_URL}/api/me/saved-outfits`, {
+    method: "POST",
+    headers: {
+      ...buildAuthHeaders(accessToken),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
+  return (await response.json()) as SavedOutfitRecord
+}
+
+export async function deleteSavedOutfit(accessToken: string, savedOutfitId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/me/saved-outfits/${savedOutfitId}`, {
+    method: "DELETE",
+    headers: buildAuthHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new ApiError(await readErrorMessage(response), response.status)
+  }
 }

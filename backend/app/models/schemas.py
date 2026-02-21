@@ -1,5 +1,6 @@
 """Pydantic schemas for API request and response contracts."""
 
+from datetime import datetime
 from enum import Enum
 from typing import Literal
 
@@ -103,3 +104,88 @@ class GenerateOutfitsLLMResponse(BaseModel):
         if not (2 <= len(self.outfits) <= 4):
             raise ValueError("Outfits must contain between 2 and 4 suggestions")
         return self
+
+
+class AuthenticatedUser(BaseModel):
+    user_id: str
+    email: str | None = None
+    display_name: str | None = None
+    access_token: str | None = None
+
+
+class MeResponse(BaseModel):
+    user_id: str
+    email: str | None = None
+    display_name: str | None = None
+
+
+class ClosetItemCreate(BaseModel):
+    name: str = Field(min_length=1)
+    category: ClothingCategory
+    color: str = Field(min_length=1)
+    material: str | None = None
+    pattern: str | None = None
+    formality: Formality
+    seasonality: list[Season] = Field(min_length=1)
+    tags: list[str] = Field(default_factory=list)
+    notes: str | None = None
+
+
+class ClosetItemUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1)
+    category: ClothingCategory | None = None
+    color: str | None = Field(default=None, min_length=1)
+    material: str | None = None
+    pattern: str | None = None
+    formality: Formality | None = None
+    seasonality: list[Season] | None = None
+    tags: list[str] | None = None
+    notes: str | None = None
+
+
+class ClosetItemRecord(BaseModel):
+    id: str
+    user_id: str
+    name: str
+    category: ClothingCategory
+    color: str
+    material: str | None = None
+    pattern: str | None = None
+    formality: Formality
+    seasonality: list[Season]
+    tags: list[str] = Field(default_factory=list)
+    notes: str | None = None
+    image_path: str | None = None
+    image_mime_type: str | None = None
+    image_url: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class SavedOutfitCreate(BaseModel):
+    title: str | None = None
+    occasion: str = Field(min_length=1)
+    itinerary: str = Field(min_length=1)
+    outfit_snapshot: OutfitSuggestion
+    global_tips: list[str] = Field(default_factory=list)
+
+
+class SavedOutfitRecord(BaseModel):
+    id: str
+    user_id: str
+    title: str | None = None
+    occasion: str
+    itinerary: str
+    outfit_snapshot: OutfitSuggestion
+    global_tips: list[str] = Field(default_factory=list)
+    created_at: datetime
+
+
+class ProtectedGenerateOutfitsRequest(BaseModel):
+    occasion: str = Field(min_length=1)
+    itinerary: str = Field(min_length=1)
+    preferences: str | None = None
+
+
+class DeleteResponse(BaseModel):
+    deleted: bool
