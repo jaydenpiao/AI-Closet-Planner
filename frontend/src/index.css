@@ -4,23 +4,25 @@
 
 @layer base {
   :root {
-    --background: 33 100% 98%;
-    --foreground: 214 26% 16%;
-    --card: 0 0% 100%;
-    --card-foreground: 214 26% 16%;
-    --primary: 212 72% 36%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 27 78% 91%;
-    --secondary-foreground: 214 26% 16%;
-    --muted: 210 36% 94%;
-    --muted-foreground: 214 14% 40%;
-    --accent: 162 50% 86%;
-    --accent-foreground: 214 26% 16%;
+    --background: 38 100% 97%;
+    --foreground: 24 30% 20%;
+    --card: 37 100% 99%;
+    --card-foreground: 24 30% 20%;
+    --primary: 10 36% 56%;
+    --primary-foreground: 24 33% 12%;
+    --secondary: 37 100% 84%;
+    --secondary-foreground: 24 30% 20%;
+    --muted: 31 36% 90%;
+    --muted-foreground: 29 22% 35%;
+    --accent: 23 55% 75%;
+    --accent-foreground: 24 30% 20%;
     --destructive: 0 72% 48%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214 30% 87%;
-    --input: 214 30% 87%;
-    --ring: 212 72% 36%;
+    --border: 29 30% 76%;
+    --input: 29 30% 76%;
+    --ring: 31 21% 48%;
+    --star-filled: 37 100% 84%;
+    --star-empty: 23 55% 75%;
     --radius: 0.85rem;
   }
 
@@ -32,9 +34,9 @@
     @apply bg-background text-foreground min-h-screen antialiased;
     font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
     background-image:
-      radial-gradient(circle at 15% 10%, rgba(64, 146, 233, 0.17), transparent 34%),
-      radial-gradient(circle at 85% 0%, rgba(85, 179, 133, 0.15), transparent 38%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 252, 0.96) 100%);
+      radial-gradient(circle at 15% 10%, rgba(183, 116, 102, 0.24), transparent 35%),
+      radial-gradient(circle at 85% 0%, rgba(226, 181, 154, 0.2), transparent 40%),
+      linear-gradient(180deg, rgba(255, 238, 204, 0.92) 0%, rgba(255, 248, 236, 0.97) 100%);
   }
 
   #root {

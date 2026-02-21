@@ -36,7 +36,7 @@ export function StarRating({ confidence, maxStars = 5, className }: StarRatingPr
         {Array.from({ length: fullStars }).map((_, index) => (
           <Star
             key={`full-${index}`}
-            className="h-4 w-4 fill-yellow-400 text-yellow-400"
+            className="h-4 w-4 fill-[hsl(var(--star-filled))] text-[hsl(var(--star-filled))]"
             aria-hidden="true"
             data-testid="star-full"
           />
@@ -44,7 +44,7 @@ export function StarRating({ confidence, maxStars = 5, className }: StarRatingPr
 
         {hasHalfStar && (
           <StarHalf
-            className="h-4 w-4 fill-yellow-400 text-yellow-400"
+            className="h-4 w-4 fill-[hsl(var(--star-filled))] text-[hsl(var(--star-filled))]"
             aria-hidden="true"
             data-testid="star-half"
           />
@@ -53,7 +53,7 @@ export function StarRating({ confidence, maxStars = 5, className }: StarRatingPr
         {Array.from({ length: emptyStars }).map((_, index) => (
           <Star
             key={`empty-${index}`}
-            className="h-4 w-4 text-yellow-200"
+            className="h-4 w-4 text-[hsl(var(--star-empty))]/60"
             aria-hidden="true"
             data-testid="star-empty"
           />

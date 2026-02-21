@@ -79,8 +79,8 @@ export function ClosetSummary({ result }: ClosetSummaryProps) {
         </div>
 
         {result.warnings.length > 0 && (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-            <p className="font-semibold">Warnings</p>
+          <div className="rounded-lg border border-primary/30 bg-secondary/55 p-3 text-sm text-foreground">
+            <p className="font-semibold text-primary">Warnings</p>
             <ul className="mt-1 list-disc space-y-1 pl-4">
               {result.warnings.map((warning) => (
                 <li key={warning}>{warning}</li>
