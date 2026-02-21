@@ -8,6 +8,7 @@ Closet Planner AI is a full-stack monorepo MVP where users upload closet photos 
 /Users/jaydenpiao/Desktop/AI-Closet-Planner
   frontend/
   backend/
+  supabase/
   docs/
   SYNC_CONTEXT.md
   README.md
@@ -16,7 +17,7 @@ Closet Planner AI is a full-stack monorepo MVP where users upload closet photos 
 ## Tech Stack
 
 - Frontend: React + TypeScript + Vite, Tailwind CSS, shadcn/ui
-- Backend: FastAPI, Uvicorn, Pydantic, python-multipart, google-genai SDK
+- Backend: FastAPI, Uvicorn, Pydantic, python-multipart, google-genai SDK, Supabase (Auth + Postgres + Storage)
 
 ## Prerequisites
 
@@ -35,6 +36,12 @@ Edit `backend/.env`:
 
 - Keep `GEMINI_MOCK_MODE=true` for reliable demo mode
 - Optionally set `GEMINI_API_KEY` and switch `GEMINI_MOCK_MODE=false` for real Gemini
+- Add Supabase settings for authenticated features:
+  - `SUPABASE_URL=https://<project-ref>.supabase.co`
+  - `SUPABASE_PUBLISHABLE_KEY=sb_publishable_...`
+  - `SUPABASE_SERVICE_ROLE_KEY=...` (server-only secret)
+  - `SUPABASE_DB_URL=postgresql://...` (optional for DB tooling)
+  - `SUPABASE_STORAGE_BUCKET=closet-item-images`
 
 Install and run:
 
@@ -55,6 +62,12 @@ cd /Users/jaydenpiao/Desktop/AI-Closet-Planner/frontend
 cp .env.example .env
 ```
 
+Edit `frontend/.env`:
+
+- `VITE_API_BASE_URL=http://localhost:8000`
+- `VITE_SUPABASE_URL=https://<project-ref>.supabase.co`
+- `VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...`
+
 If your shell defaults to an older Node version, export Node 24 path first:
 
 ```bash
@@ -71,7 +84,23 @@ npm run dev
 
 Frontend URL: `http://localhost:5173`
 
-## 3. Verification Commands
+## 3. Supabase Setup (Auth + DB + Storage)
+
+1. Apply SQL migration in `supabase/migrations/20260221143000_auth_closet_v1.sql`.
+2. Confirm tables in `public`:
+   - `profiles`
+   - `closet_items`
+   - `saved_outfits`
+3. Confirm storage bucket exists:
+   - `closet-item-images` (private)
+4. In Supabase Authentication settings:
+   - Enable Email provider
+   - Disable email confirmation for MVP
+   - Enable Google provider and set localhost redirect/origin values
+
+Detailed migration workflow: `docs/SUPABASE_MIGRATION_RUNBOOK.md`
+
+## 4. Verification Commands
 
 ### Health
 
@@ -189,6 +218,7 @@ npm run build
 ## API and Sprint Docs
 
 - API contract: `docs/API_CONTRACT.md`
+- Supabase migration runbook: `docs/SUPABASE_MIGRATION_RUNBOOK.md`
 - 4-hour runbook: `docs/HACKATHON_RUNBOOK.md`
 - 1-minute demo script: `docs/DEMO_SCRIPT.md`
 - Shared dev context: `SYNC_CONTEXT.md`
