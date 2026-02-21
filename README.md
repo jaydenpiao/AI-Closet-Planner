@@ -99,6 +99,7 @@ Frontend URL: `http://localhost:5173`
    - Enable Google provider and set localhost redirect/origin values
 
 Detailed migration workflow: `docs/SUPABASE_MIGRATION_RUNBOOK.md`
+Detailed Google OAuth local setup (exact dashboard/client fields): `docs/GOOGLE_OAUTH_LOCAL_SETUP.md`
 
 ## 4. Verification Commands
 
@@ -113,6 +114,17 @@ Expected:
 ```json
 {"status":"ok"}
 ```
+
+### Google Provider Preflight
+
+```bash
+curl -i "https://kkicdnsqwvqjlsrsrvxl.supabase.co/auth/v1/authorize?provider=google&redirect_to=http%3A%2F%2Flocalhost%3A5173"
+```
+
+Expected after provider setup:
+
+- HTTP `302` or `303`
+- `location` header pointing to Google auth
 
 ### Analyze Closet (manual text path)
 
@@ -219,6 +231,7 @@ npm run build
 
 - API contract: `docs/API_CONTRACT.md`
 - Supabase migration runbook: `docs/SUPABASE_MIGRATION_RUNBOOK.md`
+- Google OAuth local setup: `docs/GOOGLE_OAUTH_LOCAL_SETUP.md`
 - 4-hour runbook: `docs/HACKATHON_RUNBOOK.md`
 - 1-minute demo script: `docs/DEMO_SCRIPT.md`
 - Shared dev context: `SYNC_CONTEXT.md`

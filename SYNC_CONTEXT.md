@@ -100,11 +100,13 @@ Build a reliable hackathon MVP where users provide closet images and/or typed cl
 - Frontend auth/account mode implemented (email/password + Google buttons, guest mode preserved)
 - Frontend closet manager + plan-from-saved-closet + saved outfits panels implemented
 - Live API verification complete (`health`, CORS, analyze, generate) in mock mode
+- Google OAuth preflight validated and currently failing with `Unsupported provider: provider is not enabled` (provider config pending in Supabase dashboard)
 - Docs completed (`README`, API contract, runbook, demo script)
 
 ## Blockers
 - Active:
   - Supabase management branch operations unavailable via current MCP permission context (`list_branches` error); migration applied directly to project.
+  - Supabase Google provider is still disabled for project `kkicdnsqwvqjlsrsrvxl`; `/auth/v1/authorize?provider=google` returns HTTP 400 `validation_failed`.
 - Resolved:
   - Pytest import path issue (`ModuleNotFoundError: app`) fixed with `backend/pytest.ini`
   - Tailwind init failed under v4; pinned to Tailwind v3.4 for stable shadcn workflow
@@ -113,7 +115,7 @@ Build a reliable hackathon MVP where users provide closet images and/or typed cl
 
 ## Next 3 Tasks
 1. Configure and validate Google OAuth provider settings in Supabase dashboard for localhost callback/origin.
-2. Provide and set `SUPABASE_SERVICE_ROLE_KEY` in `backend/.env` for live authenticated DB/storage operations.
+2. Run post-config preflight to confirm Google authorize endpoint returns redirect (302/303 instead of 400).
 3. Run full end-to-end authenticated smoke (signup/login, closet CRUD, image upload, protected generate, save/delete outfit).
 
 ## Quick Test Commands
@@ -176,3 +178,4 @@ npm run build
 - [2026-02-21 12:58 PST] codex | validated mock-mode backend health/analyze/generate and recorded real-mode gate | satisfy MVP verification checklist without API key | real Gemini smoke skipped (`GEMINI_API_KEY` absent, `GEMINI_MOCK_MODE=true`)
 - [2026-02-21 14:26 PST] codex | implemented v2 auth + persistence stack (Supabase-backed `/api/me/*`, frontend account mode, closet CRUD, saved outfits) | deliver non-breaking expansion from guest MVP to authenticated workflow | backend tests `19 passed`, frontend lint/build pass
 - [2026-02-21 14:26 PST] codex | applied Supabase migration `auth_closet_v1` and verified tables/RLS/storage policies | establish secure schema baseline for per-user data + item images | `public` tables present, RLS enabled, `closet-item-images` bucket present
+- [2026-02-21 15:10 PST] codex | added Google OAuth local setup runbook + provider preflight commands in docs | reduce setup ambiguity and make auth blocker diagnosable in one command | current preflight result confirmed: HTTP 400 `Unsupported provider: provider is not enabled`

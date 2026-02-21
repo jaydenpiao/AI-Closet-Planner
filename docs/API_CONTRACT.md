@@ -21,6 +21,16 @@ Protected endpoints require:
 Authorization: Bearer <supabase_access_token>
 ```
 
+Auth provider prerequisites for login:
+
+1. Email provider enabled in Supabase.
+2. Google provider enabled in Supabase (if using `Continue with Google`).
+3. `Site URL` and localhost redirect URLs configured in Supabase Auth settings.
+4. Google OAuth client callback includes:
+   - `https://kkicdnsqwvqjlsrsrvxl.supabase.co/auth/v1/callback`
+
+Setup details: `docs/GOOGLE_OAUTH_LOCAL_SETUP.md`
+
 Error shape is stable:
 
 ```json

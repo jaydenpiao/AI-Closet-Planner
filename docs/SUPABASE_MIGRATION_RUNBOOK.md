@@ -78,6 +78,8 @@ order by schemaname, tablename, policyname;
    - `/api/me/generate-outfits`
    - `/api/me/saved-outfits` create/list/delete
 
+Google provider setup details (for local OAuth): `docs/GOOGLE_OAUTH_LOCAL_SETUP.md`
+
 ## Rollback Guidance
 
 For hackathon speed, no down migration is included.  
