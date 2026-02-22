@@ -2,8 +2,35 @@ import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import App from "@/App"
-import { analyzeCloset, generateOutfits, getHealth } from "@/lib/api"
+const apiMocks = vi.hoisted(() => ({
+  analyzeCloset: vi.fn(),
+  createClosetItem: vi.fn(),
+  createSavedOutfit: vi.fn(),
+  deleteClosetItem: vi.fn(),
+  deleteClosetItemImage: vi.fn(),
+  deleteSavedOutfit: vi.fn(),
+  generateOutfits: vi.fn(),
+  generateOutfitsFromSavedCloset: vi.fn(),
+  getHealth: vi.fn(),
+  getMe: vi.fn(),
+  listClosetItems: vi.fn(),
+  listSavedOutfits: vi.fn(),
+  updateClosetItem: vi.fn(),
+  uploadClosetItemImage: vi.fn(),
+}))
+
+const authMocks = vi.hoisted(() => ({
+  signInWithEmail: vi.fn(),
+  signInWithGoogle: vi.fn(),
+  signOut: vi.fn(),
+  signUpWithEmail: vi.fn(),
+}))
+
+const supabaseMocks = vi.hoisted(() => ({
+  getSession: vi.fn(),
+  onAuthStateChange: vi.fn(),
+  unsubscribe: vi.fn(),
+}))
 
 vi.mock("@/lib/api", () => {
   class MockApiError extends Error {
@@ -18,17 +45,36 @@ vi.mock("@/lib/api", () => {
 
   return {
     ApiError: MockApiError,
-    getHealth: vi.fn(),
-    analyzeCloset: vi.fn(),
-    generateOutfits: vi.fn(),
+    ...apiMocks,
   }
 })
+
+vi.mock("@/lib/auth", () => ({
+  ...authMocks,
+}))
+
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    auth: {
+      getSession: supabaseMocks.getSession,
+      onAuthStateChange: supabaseMocks.onAuthStateChange,
+    },
+  },
+}))
+
+import App from "@/App"
 
 describe("App", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(getHealth).mockResolvedValue({ status: "ok" })
-    vi.mocked(analyzeCloset).mockResolvedValue({
+
+    supabaseMocks.getSession.mockResolvedValue({ data: { session: null } })
+    supabaseMocks.onAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: supabaseMocks.unsubscribe } },
+    })
+
+    apiMocks.getHealth.mockResolvedValue({ status: "ok" })
+    apiMocks.analyzeCloset.mockResolvedValue({
       source: "manual_text",
       summary: "Parsed 1 item.",
       items: [
@@ -56,7 +102,7 @@ describe("App", () => {
       },
       warnings: [],
     })
-    vi.mocked(generateOutfits).mockResolvedValue({
+    apiMocks.generateOutfits.mockResolvedValue({
       occasion: "Team dinner",
       itinerary: "Dinner then drinks",
       outfits: [
@@ -116,7 +162,7 @@ describe("App", () => {
     expect(screen.getByText("Add closet images or manual clothes text before submitting.")).toBeInTheDocument()
     expect(screen.getByText("Occasion is required.")).toBeInTheDocument()
     expect(screen.getByText("Itinerary is required.")).toBeInTheDocument()
-    expect(analyzeCloset).not.toHaveBeenCalled()
+    expect(apiMocks.analyzeCloset).not.toHaveBeenCalled()
   })
 
   it("renders parsed closet and outfit cards from demo data", async () => {
@@ -133,7 +179,7 @@ describe("App", () => {
 
   it("shows API failure guidance with demo data recommendation", async () => {
     const user = userEvent.setup()
-    vi.mocked(analyzeCloset).mockRejectedValueOnce(new Error("network down"))
+    apiMocks.analyzeCloset.mockRejectedValueOnce(new Error("network down"))
 
     render(<App />)
 

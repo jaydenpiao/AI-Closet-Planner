@@ -19,6 +19,14 @@ class Settings(BaseSettings):
         default="http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174",
         alias="ALLOWED_ORIGINS",
     )
+    supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
+    supabase_publishable_key: str | None = Field(default=None, alias="SUPABASE_PUBLISHABLE_KEY")
+    supabase_service_role_key: str | None = Field(default=None, alias="SUPABASE_SERVICE_ROLE_KEY")
+    supabase_db_url: str | None = Field(default=None, alias="SUPABASE_DB_URL")
+    supabase_storage_bucket: str = Field(
+        default="closet-item-images",
+        alias="SUPABASE_STORAGE_BUCKET",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",

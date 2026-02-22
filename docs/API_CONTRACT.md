@@ -1,163 +1,242 @@
-# API Contract - Closet Planner AI MVP
+# API Contract - Closet Planner AI (v2)
 
-Base URL: `http://127.0.0.1:8000`
+Base URL: `http://127.0.0.1:8000`  
 Prefix: `/api`
 
-## Endpoints
+## Stability Rules
 
-## GET `/api/health`
+The guest MVP contract remains unchanged:
 
-### Response `200`
+1. `GET /api/health`
+2. `POST /api/analyze-closet`
+3. `POST /api/generate-outfits`
+
+New authenticated capabilities are additive under `/api/me/*`.
+
+## Auth Header (Protected Routes)
+
+Protected endpoints require:
+
+```http
+Authorization: Bearer <supabase_access_token>
+```
+
+Auth provider prerequisites for login:
+
+1. Email provider enabled in Supabase.
+2. Google provider enabled in Supabase (if using `Continue with Google`).
+3. `Site URL` and localhost redirect URLs configured in Supabase Auth settings.
+4. Google OAuth client callback includes:
+   - `https://kkicdnsqwvqjlsrsrvxl.supabase.co/auth/v1/callback`
+
+Setup details: `docs/GOOGLE_OAUTH_LOCAL_SETUP.md`
+
+Error shape is stable:
+
+```json
+{ "detail": "Human-readable message" }
+```
+
+## Guest Endpoints (Unchanged)
+
+### GET `/api/health`
+
+Response `200`:
 
 ```json
 { "status": "ok" }
 ```
 
-## POST `/api/analyze-closet`
+### POST `/api/analyze-closet`
 
 `multipart/form-data`
 
-### Inputs
+Inputs:
 
-- `files[]` (optional, repeatable): image files
-- `manual_clothes_text` (optional): string
+- `files[]` (optional, repeatable)
+- `manual_clothes_text` (optional)
 
-At least one of `files[]` or `manual_clothes_text` is required.
+At least one input is required.
 
-### Validation
+Validation:
 
-- Allowed MIME: `image/jpeg`, `image/png`, `image/webp`
-- Max file size: `8MB` each
-- Max file count: `8`
+- MIME: `image/jpeg`, `image/png`, `image/webp`
+- max file size: `MAX_UPLOAD_MB` (default `8MB`) per file
+- max file count: `MAX_UPLOAD_FILES` (default `8`)
 
-### Response `200` (`AnalyzeClosetResponse`)
+Response `200`: `AnalyzeClosetResponse`
 
-```json
-{
-  "source": "manual_text",
-  "summary": "Parsed 4 clothing items and grouped them for outfit planning.",
-  "items": [
-    {
-      "id": "manual-1",
-      "name": "white tee",
-      "category": "top",
-      "color": "white",
-      "material": null,
-      "pattern": null,
-      "formality": "smart-casual",
-      "seasonality": ["spring", "fall"],
-      "tags": ["manual-input", "mvp"],
-      "notes": null
-    }
-  ],
-  "category_counts": {
-    "top": 1,
-    "bottom": 0,
-    "dress": 0,
-    "outerwear": 0,
-    "shoes": 0,
-    "accessory": 0,
-    "other": 0
-  },
-  "warnings": []
-}
-```
+### POST `/api/generate-outfits`
 
-## POST `/api/generate-outfits`
-
-`application/json`
-
-### Request (`GenerateOutfitsRequest`)
+`application/json` body:
 
 ```json
 {
-  "closet_items": [
-    {
-      "id": "manual-1",
-      "name": "white tee",
-      "category": "top",
-      "color": "white",
-      "material": null,
-      "pattern": null,
-      "formality": "casual",
-      "seasonality": ["spring", "summer"],
-      "tags": ["manual-input"],
-      "notes": null
-    }
-  ],
+  "closet_items": [],
   "occasion": "Business casual meetup",
   "itinerary": "Coworking then dinner",
   "preferences": "Prefer neutral colors"
 }
 ```
 
-### Response `200` (`GenerateOutfitsResponse`)
+Response `200`: `GenerateOutfitsResponse`
 
-- `outfits` length is always `2..4`
-- `confidence` is always between `0` and `1`
+Guarantees:
+
+- outfits length is `2..4`
+- each outfit has at least 2 pieces
+- confidence is `0..1`
+
+## Protected Endpoints (New)
+
+### GET `/api/me`
+
+Response `200`:
 
 ```json
 {
-  "occasion": "Business casual meetup",
-  "itinerary": "Coworking then dinner",
-  "outfits": [
-    {
-      "outfit_id": "outfit-1",
-      "title": "Smart Daytime Core",
-      "pieces": [
-        {
-          "item_id": "manual-1",
-          "item_name": "white tee",
-          "category": "top",
-          "styling_note": "Use as the visual anchor."
-        },
-        {
-          "item_id": "manual-2",
-          "item_name": "blue jeans",
-          "category": "bottom",
-          "styling_note": "Keeps the look grounded and wearable all day."
-        }
-      ],
-      "reasoning": "Built for a polished but comfortable day plan.",
-      "confidence": 0.86,
-      "alternatives": ["Swap shoes for a cleaner pair."]
-    },
-    {
-      "outfit_id": "outfit-2",
-      "title": "Layered Evening Option",
-      "pieces": [
-        {
-          "item_id": "manual-1",
-          "item_name": "white tee",
-          "category": "top",
-          "styling_note": "Works as a clean base under outerwear."
-        },
-        {
-          "item_id": "manual-3",
-          "item_name": "brown loafers",
-          "category": "shoes",
-          "styling_note": "Adds dressier finish for evening plans."
-        }
-      ],
-      "reasoning": "Adds flexibility for temperature and venue changes.",
-      "confidence": 0.82,
-      "alternatives": ["Drop outerwear if the evening remains warm."]
-    }
-  ],
-  "global_tips": ["Steam or lint-roll pieces before leaving."]
+  "user_id": "uuid",
+  "email": "user@example.com",
+  "display_name": "Optional Name"
 }
 ```
 
+### Closet Items
+
+### GET `/api/me/closet-items`
+
+Response `200`: `ClosetItemRecord[]`
+
+### POST `/api/me/closet-items`
+
+Body: `ClosetItemCreate`
+
+Response `200`: `ClosetItemRecord`
+
+### PATCH `/api/me/closet-items/{item_id}`
+
+Body: `ClosetItemUpdate` (partial)
+
+Response `200`: `ClosetItemRecord`
+
+### DELETE `/api/me/closet-items/{item_id}`
+
+Response `200`:
+
+```json
+{ "deleted": true }
+```
+
+### POST `/api/me/closet-items/{item_id}/image`
+
+`multipart/form-data` with field:
+
+- `file` (single image)
+
+Response `200`: updated `ClosetItemRecord` with signed `image_url`.
+
+### DELETE `/api/me/closet-items/{item_id}/image`
+
+Response `200`: updated `ClosetItemRecord` with image fields cleared.
+
+### Saved Outfits
+
+### GET `/api/me/saved-outfits`
+
+Response `200`: `SavedOutfitRecord[]`
+
+### POST `/api/me/saved-outfits`
+
+Body:
+
+```json
+{
+  "title": "Monday Night Bar Date",
+  "occasion": "trip to mexico",
+  "itinerary": "monday night: going on a bar date",
+  "outfit_snapshot": {
+    "outfit_id": "outfit-1",
+    "title": "Monday Night Bar Date",
+    "pieces": [],
+    "reasoning": "why this works",
+    "confidence": 0.9,
+    "alternatives": []
+  },
+  "global_tips": ["tip 1"]
+}
+```
+
+Response `200`: `SavedOutfitRecord`
+
+### DELETE `/api/me/saved-outfits/{saved_outfit_id}`
+
+Response `200`:
+
+```json
+{ "deleted": true }
+```
+
+### Generate from Saved Closet
+
+### POST `/api/me/generate-outfits`
+
+Body:
+
+```json
+{
+  "occasion": "Date night",
+  "itinerary": "7pm dinner, 9pm drinks",
+  "preferences": "neutral colors"
+}
+```
+
+Behavior:
+
+1. Backend loads caller’s persisted closet items.
+2. Backend calls Gemini generation using existing structured schema.
+
+Response `200`: `GenerateOutfitsResponse`
+
+## Core New Models
+
+### ClosetItemCreate
+
+```json
+{
+  "name": "White Oxford Shirt",
+  "category": "top",
+  "color": "white",
+  "material": "cotton",
+  "pattern": null,
+  "formality": "smart-casual",
+  "seasonality": ["spring", "fall"],
+  "tags": ["essential"],
+  "notes": null
+}
+```
+
+### ClosetItemRecord
+
+`ClosetItemCreate` fields plus:
+
+- `id`, `user_id`
+- `image_path`, `image_mime_type`, `image_url`
+- `created_at`, `updated_at`
+
+### SavedOutfitRecord
+
+- `id`, `user_id`
+- `title`, `occasion`, `itinerary`
+- `outfit_snapshot` (`OutfitSuggestion`)
+- `global_tips`
+- `created_at`
+
 ## Error Codes
 
-- `400`: missing required inputs or too many files
+- `400`: request constraints violated (e.g., missing input, empty update payload)
+- `401`: missing/invalid bearer token for protected routes
+- `404`: resource not found for current user
 - `413`: file too large
 - `415`: unsupported file type
-- `422`: request schema validation error
-- `502`: Gemini response not valid JSON after retry or Gemini service failure
-
-## Schema Enums
-
-- `ClothingCategory`: `top | bottom | dress | outerwear | shoes | accessory | other`
-- `Formality`: `casual | smart-casual | formal | athleisure | unknown`
-- `Season`: `spring | summer | fall | winter`
+- `422`: schema validation error
+- `502`: upstream Gemini or Supabase integration failure
